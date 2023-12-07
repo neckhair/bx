@@ -1,11 +1,14 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package main
 
-import "gitlab.com/neckhair/bx/cmd"
+import (
+	"github.com/spf13/viper"
+	"gitlab.com/neckhair/bx/cmd"
+	"gitlab.com/neckhair/bx/config"
+)
 
 func main() {
+	viper.SetConfigType("yaml")
+	viper.SetConfigFile(config.ConfigFileFullPath)
+
 	cmd.Execute()
 }

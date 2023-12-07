@@ -6,45 +6,31 @@ import (
 	"path/filepath"
 
 	"github.com/adrg/xdg"
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
-const configFilename = "config.yaml"
-
-var (
-	configDirectory    = filepath.Join(xdg.ConfigHome, "bx")
-	configFileFullPath = filepath.Join(configDirectory, configFilename)
+const (
+	ConfigFileName = "config.yaml"
 )
 
-var ErrConfigNotFound = errors.New("config file not found")
+var (
+	ConfigDirectory    = filepath.Join(xdg.ConfigHome, "bx")
+	ConfigFileFullPath = filepath.Join(ConfigDirectory, ConfigFileName)
+)
 
-func Init() error {
-	viper.AddConfigPath(configDirectory)
-	viper.SetConfigFile(configFilename)
-	viper.SetConfigType("yaml")
-
-	if err := os.MkdirAll(configDirectory, 0o700); err != nil {
-		return fmt.Errorf("fatal error creating config directory: %w", err)
+func WriteToFile() error {
+	if err := ensureDirectoryExists(); err != nil {
+		return fmt.Errorf("cannot create config directory: %w", err)
 	}
-
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return ErrConfigNotFound
-		} else {
-			return fmt.Errorf("fatal error config file: %w", err)
-		}
+	if err := viper.WriteConfigAs(ConfigFileFullPath); err != nil {
+		return fmt.Errorf("cannot write config file: %v", err)
 	}
 	return nil
 }
 
-func Set(key string, value interface{}) {
-	viper.Set(key, value)
-}
-
-func Write() error {
-	if err := viper.WriteConfigAs(configFileFullPath); err != nil {
-		return fmt.Errorf("writing config failed %w", err)
+func ensureDirectoryExists() error {
+	if err := os.MkdirAll(ConfigDirectory, 0o700); err != nil {
+		return err
 	}
 	return nil
 }
