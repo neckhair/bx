@@ -21,12 +21,12 @@ type provider struct{}
 
 var TokenProvider = &provider{}
 
-func (p *provider) Token() *oauth2.Token {
+func (p *provider) Token() (*oauth2.Token, error) {
 	token, err := Token()
 	if err != nil {
-		return token
+		return token, nil
 	}
-	return nil
+	return token, nil
 }
 
 func Token() (*oauth2.Token, error) {
