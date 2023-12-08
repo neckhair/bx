@@ -1,12 +1,17 @@
 package cli
 
-import "github.com/fatih/color"
+import (
+	"fmt"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 func PrintError(msg string) {
-	color.Red(msg)
+	style := lipgloss.NewStyle().Foreground(lipgloss.Color("#990000"))
+	fmt.Println(style.Render(msg))
 }
 
 func Bold(msg string) {
-	c := color.New(color.Bold)
-	c.Println(msg)
+	style := lipgloss.NewStyle().Bold(true)
+	fmt.Println(style.Render(msg))
 }
