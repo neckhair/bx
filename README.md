@@ -6,6 +6,18 @@ Features:
 
 - List contacts
 
+## Installation
+
+Currently the only way to install `bx` is by `go install`:
+
+```sh
+go install github.com/neckhair/bx@main
+```
+
+It installs the tool into your `$GOPATH/bin`.
+
+More installation options might follow later.
+
 ## Setup
 
 Before you can run the CLI for the first time, you need to setup the credentials. You can create the
