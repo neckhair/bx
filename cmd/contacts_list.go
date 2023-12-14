@@ -3,10 +3,10 @@ package cmd
 import (
 	"strings"
 
+	"github.com/neckhair/bx/bexio"
+	"github.com/neckhair/bx/config"
+	"github.com/neckhair/bx/internal/cli"
 	"github.com/spf13/cobra"
-	"gitlab.com/neckhair/bx/bexio"
-	"gitlab.com/neckhair/bx/config"
-	"gitlab.com/neckhair/bx/internal/cli"
 )
 
 const contactsDefaultLimit = 500

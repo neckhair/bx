@@ -1,4 +1,4 @@
-module gitlab.com/neckhair/bx
+module github.com/neckhair/bx
 
 go 1.20
 

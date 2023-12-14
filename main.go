@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/neckhair/bx/cmd"
+	"github.com/neckhair/bx/config"
 	"github.com/spf13/viper"
-	"gitlab.com/neckhair/bx/cmd"
-	"gitlab.com/neckhair/bx/config"
 )
 
 func main() {

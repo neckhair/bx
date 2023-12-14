@@ -6,9 +6,9 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/neckhair/bx/config"
+	"github.com/neckhair/bx/internal/cli"
 	"github.com/spf13/cobra"
-	"gitlab.com/neckhair/bx/config"
-	"gitlab.com/neckhair/bx/internal/cli"
 )
 
 // setupCmd represents the setup command

@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/neckhair/bx/bexio"
+	"github.com/neckhair/bx/config"
+	"github.com/neckhair/bx/internal/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.com/neckhair/bx/bexio"
-	"gitlab.com/neckhair/bx/config"
-	"gitlab.com/neckhair/bx/internal/cli"
 )
 
 // rootCmd represents the base command when called without any subcommands
