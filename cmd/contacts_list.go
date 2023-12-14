@@ -29,7 +29,7 @@ var contactsListCmd = &cobra.Command{
 			return err
 		}
 
-		contacts, err := client.Contacts(cmd.Context(), limit)
+		contacts, err := bexio.ListContacts(cmd.Context(), client, limit)
 		if err != nil {
 			return err
 		}

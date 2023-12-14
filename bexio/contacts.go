@@ -1,8 +1,13 @@
 package bexio
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 type Contact struct {
@@ -24,10 +29,26 @@ func parseListContactsResponse(b []byte) ([]Contact, error) {
 
 	err := json.Unmarshal(b, &contacts)
 	if err != nil {
-		return []Contact{}, err
+		return []Contact{}, errors.Errorf("could not parse contact list: %v", err)
 	}
 
 	return contacts, nil
+}
+
+func ListContacts(ctx context.Context, client *Client, limit int) ([]Contact, error) {
+	contactsUrl := client.BaseUrl + "/contact"
+	params := map[string]string{"limit": strconv.Itoa(limit)}
+	resp, err := client.Get(ctx, contactsUrl, params)
+	if err != nil {
+		return nil, err
+	}
+
+	contacts, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return []Contact{}, errors.Errorf("error reading response body: %v", err)
+	}
+
+	return parseListContactsResponse(contacts)
 }
 
 func (c *Contact) FullName() string {

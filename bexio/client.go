@@ -2,9 +2,8 @@ package bexio
 
 import (
 	"context"
-	"io"
+	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -18,6 +17,7 @@ const (
 )
 
 type Client struct {
+	BaseUrl     string
 	tokenSource oauth2.TokenSource
 	httpClient  *http.Client
 }
@@ -37,10 +37,14 @@ func NewConfig(clientID, clientSecret string) oauth2.Config {
 }
 
 func NewClient(tokenSource oauth2.TokenSource) *Client {
-	return &Client{tokenSource: oauth2.ReuseTokenSource(nil, tokenSource), httpClient: http.DefaultClient}
+	return &Client{
+		BaseUrl:     apiBaseURL,
+		tokenSource: oauth2.ReuseTokenSource(nil, tokenSource),
+		httpClient:  http.DefaultClient,
+	}
 }
 
-func (c *Client) Do(ctx context.Context, url string, query QueryParams) (*http.Response, error) {
+func (c *Client) Get(ctx context.Context, url string, query QueryParams) (*http.Response, error) {
 	httpClient := oauth2.NewClient(ctx, c.tokenSource)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("Accept", "application/json")
@@ -51,20 +55,19 @@ func (c *Client) Do(ctx context.Context, url string, query QueryParams) (*http.R
 	}
 	req.URL.RawQuery = q.Encode()
 
-	return httpClient.Do(req)
-}
-
-func (c *Client) Contacts(ctx context.Context, limit int) ([]Contact, error) {
-	params := map[string]string{"limit": strconv.Itoa(limit)}
-	resp, err := c.Do(ctx, apiBaseURL+"/contact", params)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	contacts, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	switch {
+	case resp.StatusCode == http.StatusNotFound:
+		return resp, NotFoundError
+	case resp.StatusCode == http.StatusUnauthorized:
+		return resp, UnauthorizedError
+	case resp.StatusCode >= 300:
+		return resp, fmt.Errorf("http error %s", resp.Status)
+	default:
+		return resp, nil
 	}
-
-	return parseListContactsResponse(contacts)
 }
