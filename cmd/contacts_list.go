@@ -29,10 +29,14 @@ var contactsListCmd = &cobra.Command{
 			return err
 		}
 
+		s := cli.StartSpinner("Loading contacts...")
+
 		contacts, err := bexio.ListContacts(client, limit)
 		if err != nil {
 			return err
 		}
+
+		s.Stop()
 
 		rows := make([][]string, len(contacts))
 		for i, contact := range contacts {
