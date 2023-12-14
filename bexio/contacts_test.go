@@ -24,7 +24,7 @@ func (ts *mockTokenSource) Token() (*oauth2.Token, error) {
 
 func newTestClient(url string) *bexio.Client {
 	tokenSource := &mockTokenSource{}
-	client := bexio.NewClient(tokenSource)
+	client := bexio.NewClient(context.Background(), tokenSource)
 	client.BaseUrl = url
 	return client
 }
@@ -59,8 +59,7 @@ func TestListContacts(t *testing.T) {
 
 	client := newTestClient(ts.URL)
 
-	ctx := context.Background()
-	contacts, err := bexio.ListContacts(ctx, client, 100)
+	contacts, err := bexio.ListContacts(client, 100)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Meier", contacts[1].Name)
@@ -77,8 +76,7 @@ func TestListContactsNotFound(t *testing.T) {
 
 	client := newTestClient(ts.URL)
 
-	ctx := context.Background()
-	contacts, err := bexio.ListContacts(ctx, client, 100)
+	contacts, err := bexio.ListContacts(client, 100)
 
 	assert.ErrorAs(t, err, &bexio.NotFoundError)
 	assert.Empty(t, contacts)
@@ -93,8 +91,7 @@ func TestListContactsUnauthorized(t *testing.T) {
 
 	client := newTestClient(ts.URL)
 
-	ctx := context.Background()
-	contacts, err := bexio.ListContacts(ctx, client, 100)
+	contacts, err := bexio.ListContacts(client, 100)
 
 	assert.ErrorAs(t, err, &bexio.UnauthorizedError)
 	assert.Empty(t, contacts)
@@ -109,8 +106,7 @@ func TestListContactsServerError(t *testing.T) {
 
 	client := newTestClient(ts.URL)
 
-	ctx := context.Background()
-	contacts, err := bexio.ListContacts(ctx, client, 100)
+	contacts, err := bexio.ListContacts(client, 100)
 
 	assert.Error(t, err)
 	assert.Empty(t, contacts)

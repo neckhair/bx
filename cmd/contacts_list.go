@@ -22,14 +22,14 @@ var contactsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List contacts",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := bexio.NewClient(config.TokenProvider)
+		client := bexio.NewClient(cmd.Context(), config.TokenProvider)
 
 		limit, err := cmd.Flags().GetInt("limit")
 		if err != nil {
 			return err
 		}
 
-		contacts, err := bexio.ListContacts(cmd.Context(), client, limit)
+		contacts, err := bexio.ListContacts(client, limit)
 		if err != nil {
 			return err
 		}

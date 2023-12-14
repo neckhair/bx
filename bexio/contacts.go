@@ -1,7 +1,6 @@
 package bexio
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -35,10 +34,10 @@ func parseListContactsResponse(b []byte) ([]Contact, error) {
 	return contacts, nil
 }
 
-func ListContacts(ctx context.Context, client *Client, limit int) ([]Contact, error) {
-	contactsUrl := client.BaseUrl + "/contact"
-	params := map[string]string{"limit": strconv.Itoa(limit)}
-	resp, err := client.Get(ctx, contactsUrl, params)
+func ListContacts(client *Client, limit int) ([]Contact, error) {
+	contactsUrl := fmt.Sprintf("%s/contact", client.BaseUrl)
+	params := QueryParams{"limit": strconv.Itoa(limit)}
+	resp, err := client.Get(contactsUrl, params)
 	if err != nil {
 		return nil, err
 	}
