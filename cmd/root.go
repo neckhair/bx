@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"os"
 
-	"github.com/neckhair/bx/bexio"
 	"github.com/neckhair/bx/config"
 	"github.com/neckhair/bx/internal/cli"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -37,15 +35,13 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-		token, err := config.Token()
+		token, err := config.ReadTokenFromFile()
 		if err != nil {
-			return fmt.Errorf("token error: %w", err)
+			return errors.Wrap(err, "Reading authentication token failed.")
 		}
-
-		if !token.Valid() {
-			if err := loginAndStoreToken(cmd.Context()); err != nil {
-				return fmt.Errorf("login failed: %w", err)
-			}
+		if token.AccessToken == "" {
+			cli.PrintError("Missing authentication token. Please use the setup command first.")
+			return nil
 		}
 
 		return nil
@@ -71,20 +67,4 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func loginAndStoreToken(ctx context.Context) error {
-	oauthConfig := bexio.NewConfig(config.Credentials())
-	token, err := bexio.OAuthLogin(ctx, oauthConfig)
-	if err != nil {
-		return fmt.Errorf("login failed: %w", err)
-	}
-
-	config.SetToken(token)
-
-	if err := config.WriteToFile(); err != nil {
-		return err
-	}
-
-	return nil
 }

@@ -11,11 +11,13 @@ import (
 
 const (
 	ConfigFileName = "config.yaml"
+	TokenFileName  = "auth.json"
 )
 
 var (
 	ConfigDirectory    = filepath.Join(xdg.ConfigHome, "bx")
 	ConfigFileFullPath = filepath.Join(ConfigDirectory, ConfigFileName)
+	TokenFileFullPath  = filepath.Join(ConfigDirectory, TokenFileName)
 )
 
 func WriteToFile() error {

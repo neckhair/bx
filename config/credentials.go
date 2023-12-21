@@ -12,7 +12,6 @@ const (
 func SetCredentials(clientID, clientSecret string) {
 	viper.Set(clientIDKey, clientID)
 	viper.Set(clientSecretKey, clientSecret)
-	viper.Set(tokenKey, nil)
 }
 
 func Credentials() (string, string) {

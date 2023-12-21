@@ -4,8 +4,10 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/neckhair/bx/bexio"
 	"github.com/neckhair/bx/config"
 	"github.com/neckhair/bx/internal/cli"
 	"github.com/spf13/cobra"
@@ -58,4 +60,22 @@ func readCredentialsFromUser() (string, string) {
 	clientSecret := cli.PromptGetInput("Client Secret", "Please provide a client secret.")
 
 	return clientID, clientSecret
+}
+
+func loginAndStoreToken(ctx context.Context) error {
+	oauthConfig := bexio.NewConfig(config.Credentials())
+	token, err := bexio.OAuthLogin(ctx, oauthConfig)
+	if err != nil {
+		return fmt.Errorf("login failed: %w", err)
+	}
+
+	if err := config.WriteToFile(); err != nil {
+		return err
+	}
+
+	if err := config.SaveTokenToFile(token); err != nil {
+		return err
+	}
+
+	return nil
 }
