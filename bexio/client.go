@@ -3,6 +3,7 @@ package bexio
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -42,8 +43,7 @@ func NewClient(ctx context.Context, tokenSource oauth2.TokenSource) *Client {
 	}
 }
 
-func (c *Client) Get(url string, query QueryParams) (*http.Response, error) {
-	req, _ := http.NewRequest("GET", url, nil)
+func (c *Client) Request(req *http.Request, query QueryParams) (*http.Response, error) {
 	req.Header.Add("Accept", "application/json")
 
 	q := req.URL.Query()
@@ -67,4 +67,14 @@ func (c *Client) Get(url string, query QueryParams) (*http.Response, error) {
 	default:
 		return resp, nil
 	}
+}
+
+func (c *Client) Get(url string, query QueryParams) (*http.Response, error) {
+	req, _ := http.NewRequest("GET", url, nil)
+	return c.Request(req, query)
+}
+
+func (c *Client) Post(url string, query QueryParams, body io.Reader) (*http.Response, error) {
+	req, _ := http.NewRequest("POST", url, body)
+	return c.Request(req, query)
 }

@@ -9,20 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Contact struct {
-	ID        int       `json:"id"`
-	Number    string    `json:"nr"`
-	Name      string    `json:"name_1"`
-	Name2     string    `json:"name_2"`
-	Address   string    `json:"address"`
-	Postcode  string    `json:"postcode"`
-	City      string    `json:"city"`
-	Mail      string    `json:"mail"`
-	Phone     string    `json:"phone_fixed"`
-	Mobile    string    `json:"phone_mobile"`
-	UpdatedAt Timestamp `json:"updated_at"`
-}
-
 func parseListContactsResponse(b []byte) ([]Contact, error) {
 	var contacts []Contact
 
@@ -34,10 +20,10 @@ func parseListContactsResponse(b []byte) ([]Contact, error) {
 	return contacts, nil
 }
 
-func ListContacts(client *Client, limit int) ([]Contact, error) {
-	contactsUrl := fmt.Sprintf("%s/contact", client.BaseUrl)
+func (c *Client) ListContacts(limit int) ([]Contact, error) {
+	contactsUrl := fmt.Sprintf("%s/contact", c.BaseUrl)
 	params := QueryParams{"limit": strconv.Itoa(limit)}
-	resp, err := client.Get(contactsUrl, params)
+	resp, err := c.Get(contactsUrl, params)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +34,4 @@ func ListContacts(client *Client, limit int) ([]Contact, error) {
 	}
 
 	return parseListContactsResponse(contacts)
-}
-
-func (c *Contact) FullName() string {
-	return fmt.Sprintf("%s %s", c.Name, c.Name2)
 }

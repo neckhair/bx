@@ -1,48 +1,13 @@
 package bexio_test
 
 import (
-	"context"
-	"fmt"
-	"io"
 	"net/http"
-	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/neckhair/bx/bexio"
+	"github.com/neckhair/bx/bexio/mocks"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/oauth2"
 )
-
-type mockTokenSource struct{}
-
-func (ts *mockTokenSource) Token() (*oauth2.Token, error) {
-	token := &oauth2.Token{AccessToken: "fake-token"}
-	return token, nil
-}
-
-func newTestClient(url string) *bexio.Client {
-	tokenSource := &mockTokenSource{}
-	client := bexio.NewClient(context.Background(), tokenSource)
-	client.BaseUrl = url
-	return client
-}
-
-func readTestJsonFromFile(t *testing.T, filename string) string {
-	path := filepath.Join("testdata", filename)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("could not open test data file: %v", err)
-		return ""
-	}
-	data, err := io.ReadAll(f)
-	if err != nil {
-		t.Fatalf("could not read test data: %v", err)
-		return ""
-	}
-	return string(data)
-}
 
 func TestContactFullName(t *testing.T) {
 	contact := bexio.Contact{Name: "Meier", Name2: "Herbert"}
@@ -50,16 +15,12 @@ func TestContactFullName(t *testing.T) {
 }
 
 func TestListContacts(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		testdata := readTestJsonFromFile(t, "list_contacts.json")
-		fmt.Fprint(w, string(testdata))
-	}))
+	ts := mocks.NewTestServer(http.StatusOK, mocks.ContactList())
 	defer ts.Close()
 
 	client := newTestClient(ts.URL)
 
-	contacts, err := bexio.ListContacts(client, 100)
+	contacts, err := client.ListContacts(100)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Meier", contacts[1].Name)
@@ -68,45 +29,36 @@ func TestListContacts(t *testing.T) {
 }
 
 func TestListContactsNotFound(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "")
-	}))
+	ts := mocks.NewTestServer(http.StatusNotFound, "")
 	defer ts.Close()
 
 	client := newTestClient(ts.URL)
 
-	contacts, err := bexio.ListContacts(client, 100)
+	contacts, err := client.ListContacts(100)
 
 	assert.ErrorAs(t, err, &bexio.NotFoundError)
 	assert.Empty(t, contacts)
 }
 
 func TestListContactsUnauthorized(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintln(w, "not authorized")
-	}))
+	ts := mocks.NewTestServer(http.StatusUnauthorized, "not authorized")
 	defer ts.Close()
 
 	client := newTestClient(ts.URL)
 
-	contacts, err := bexio.ListContacts(client, 100)
+	contacts, err := client.ListContacts(100)
 
 	assert.ErrorAs(t, err, &bexio.UnauthorizedError)
 	assert.Empty(t, contacts)
 }
 
 func TestListContactsServerError(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, "internal server error")
-	}))
+	ts := mocks.NewTestServer(http.StatusInternalServerError, "internal server error")
 	defer ts.Close()
 
 	client := newTestClient(ts.URL)
 
-	contacts, err := bexio.ListContacts(client, 100)
+	contacts, err := client.ListContacts(100)
 
 	assert.Error(t, err)
 	assert.Empty(t, contacts)

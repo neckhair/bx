@@ -35,7 +35,7 @@ var contactsListCmd = &cobra.Command{
 
 		s := cli.StartSpinner("Loading contacts...")
 
-		contacts, err := bexio.ListContacts(client, limit)
+		contacts, err := client.ListContacts(limit)
 		if err != nil {
 			return err
 		}
